@@ -1,0 +1,6 @@
+C:/VD/RenderdocMcp2/source/dist145\renderdoc-mcp-windows-x64-v0.3.0-rd145/bin/renderdoc-mcp.exe
+C:/VD/RenderdocMcp2/source/dist145\renderdoc-mcp-windows-x64-v0.3.0-rd145/bin/renderdoc-cli.exe
+C:/VD/RenderdocMcp2/source/dist145\renderdoc-mcp-windows-x64-v0.3.0-rd145/bin/renderdoc.dll
+C:/VD/RenderdocMcp2/source/dist145\renderdoc-mcp-windows-x64-v0.3.0-rd145/bin/renderdoc.json
+C:/VD/RenderdocMcp2/source/dist145\renderdoc-mcp-windows-x64-v0.3.0-rd145/skills/renderdoc-mcp/agents/openai.yaml
+C:/VD/RenderdocMcp2/source/dist145\renderdoc-mcp-windows-x64-v0.3.0-rd145/skills/renderdoc-mcp/SKILL.md
