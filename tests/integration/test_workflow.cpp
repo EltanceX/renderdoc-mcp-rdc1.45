@@ -218,7 +218,7 @@ protected:
         initReq["jsonrpc"] = "2.0";
         initReq["id"] = 0;
         initReq["method"] = "initialize";
-        initReq["params"]["protocolVersion"] = "2025-03-26";
+        initReq["params"]["protocolVersion"] = "2025-06-18";
         initReq["params"]["clientInfo"]["name"] = "test-runner";
         initReq["params"]["clientInfo"]["version"] = "1.0.0";
         initReq["params"]["capabilities"] = json::object();

@@ -9,6 +9,16 @@ using json = nlohmann::json;
 
 namespace renderdoc::mcp {
 
+namespace {
+constexpr const char* kLatestProtocolVersion = "2025-06-18";
+constexpr const char* kLegacyProtocolVersion = "2025-03-26";
+
+bool isSupportedProtocolVersion(const std::string& version)
+{
+    return version == kLatestProtocolVersion || version == kLegacyProtocolVersion;
+}
+} // namespace
+
 // ── Injection constructor ──────────────────────────────────────────────────
 
 McpServer::McpServer(core::Session& session, core::DiffSession& diffSession, ToolRegistry& registry)
@@ -62,6 +72,8 @@ json McpServer::makeToolResult(const json& data, bool isError)
         content["text"] = data.dump();
 
     result["content"] = json::array({content});
+    if(data.is_object())
+        result["structuredContent"] = data;
     if(isError)
         result["isError"] = true;
     return result;
@@ -82,15 +94,18 @@ json McpServer::handleMessage(const json& msg)
     // Route methods
     if(method == "initialize")
     {
-        if(m_initialized)
+        if(m_initializationStarted || m_initialized)
             return makeError(id, -32600, "Server already initialized");
         return handleInitialize(msg);
     }
     else if(method == "notifications/initialized")
     {
-        m_initialized = true;
+        if(m_initializationStarted)
+            m_initialized = true;
         return nullptr;  // No response for notifications
     }
+    else if(method == "ping")
+        return makeResponse(id, json::object());
     else if(method == "shutdown")
     {
         shutdown();
@@ -112,6 +127,12 @@ json McpServer::handleMessage(const json& msg)
 
 json McpServer::handleBatch(const json& arr)
 {
+    // JSON-RPC batching was removed in MCP 2025-06-18. Retain it only for
+    // clients that explicitly negotiated the legacy protocol revision.
+    if(m_protocolVersion != kLegacyProtocolVersion)
+        return makeError(nullptr, -32600,
+            "Invalid Request: JSON-RPC batching is not supported by MCP 2025-06-18");
+
     // Check for initialize in batch (forbidden by MCP spec)
     for(const auto& msg : arr)
     {
@@ -145,20 +166,20 @@ json McpServer::handleInitialize(const json& msg)
 {
     json id = msg.value("id", json(nullptr));
 
-    // Validate client protocol version for compatibility
-    static constexpr const char* kSupportedProtocolVersion = "2025-03-26";
     json params = msg.value("params", json::object());
-    if (params.contains("protocolVersion")) {
-        std::string clientVersion = params["protocolVersion"].get<std::string>();
-        if (clientVersion != kSupportedProtocolVersion) {
-            return makeError(id, -32602,
-                "Unsupported protocol version: " + clientVersion +
-                " (server supports " + kSupportedProtocolVersion + ")");
-        }
-    }
+    if(!params.is_object() || !params.contains("protocolVersion") ||
+       !params["protocolVersion"].is_string())
+        return makeError(id, -32602,
+            "Invalid params: protocolVersion must be a string");
+
+    const std::string clientVersion = params["protocolVersion"].get<std::string>();
+    m_protocolVersion = isSupportedProtocolVersion(clientVersion)
+        ? clientVersion
+        : kLatestProtocolVersion;
+    m_initializationStarted = true;
 
     json result;
-    result["protocolVersion"] = kSupportedProtocolVersion;
+    result["protocolVersion"] = m_protocolVersion;
     result["capabilities"]["tools"] = json::object();
     result["serverInfo"]["name"] = "renderdoc-mcp";
     result["serverInfo"]["version"] = "1.0.0";

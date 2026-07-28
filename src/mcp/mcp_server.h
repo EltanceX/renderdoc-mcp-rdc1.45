@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 #include "mcp/tool_registry.h"
 #include <memory>
+#include <string>
 
 namespace renderdoc::core { class Session; }
 namespace renderdoc::core { class DiffSession; }
@@ -43,6 +44,8 @@ private:
     core::DiffSession* m_diffSession = nullptr;            // always valid (points to owned or injected)
     std::unique_ptr<ToolRegistry> m_ownedRegistry;        // owned, only set by default ctor
     ToolRegistry* m_registry = nullptr;                    // always valid (points to owned or injected)
+    std::string m_protocolVersion;
+    bool m_initializationStarted = false;
     bool m_initialized = false;
 };
 

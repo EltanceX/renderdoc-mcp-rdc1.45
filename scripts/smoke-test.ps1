@@ -10,7 +10,7 @@ if(-not (Test-Path $ExePath))
     throw "Executable not found: $ExePath"
 }
 
-$payload = '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"release-smoke-test","version":"1.0"}}}'
+$payload = '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"release-smoke-test","version":"1.0"}}}'
 $output = $payload | & $ExePath
 $jsonText = ($output | Out-String).Trim()
 
@@ -46,6 +46,11 @@ if($null -ne $response.error)
 if($null -eq $response.result)
 {
     throw "Initialize response did not include a result payload: $jsonText"
+}
+
+if($response.result.protocolVersion -ne "2025-06-18")
+{
+    throw "Unexpected negotiated protocol version: $($response.result.protocolVersion)"
 }
 
 Write-Host "Smoke test passed for $ExePath"

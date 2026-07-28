@@ -1,0 +1,20 @@
+This package includes renderdoc-mcp, renderdoc-cli, the renderdoc-mcp Codex skill,
+and selected runtime files from RenderDoc v1.45.
+
+Bundled RenderDoc runtime files:
+- bin/renderdoc.dll
+- bin/renderdoc.json
+- bin/d3dcompiler_47.dll
+- bin/dbghelp.dll
+- bin/symsrv.dll
+- bin/symsrv.yes
+
+Bundled Codex assets:
+- skills/renderdoc-mcp
+- install-codex.ps1
+
+Bundled executables:
+- bin/renderdoc-mcp.exe
+- bin/renderdoc-cli.exe
+
+See LICENSE and RENDERDOC-LICENSE.md for licensing details and acknowledgements.
